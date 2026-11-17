@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чарівний квест: Одночлени</title>
+    <!-- Підключаємо KaTeX для красивих математичних формул -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+        :root {
+            --primary: #8a2be2;
+            --secondary: #ff6b6b;
+            --accent: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1b4b 0%, #31103f 50%, #1e1b4b 100%);
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* Кастомний курсор-палка для б'ття піньят */
+        .quest-board {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="%23d2691e" d="M19 3L4 18v3h3L22 6l-3-3z"/><path fill="%238b4513" d="M3 21l5-5-2-2-5 5v2z"/></svg>') 0 36, auto !important;
+        }
+
+        .quest-board:active {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="%23d2691e" transform="rotate(-35 12 12)" d="M19 3L4 18v3h3L22 6l-3-3z"/><path fill="%238b4513" d="M3 21l5-5-2-2-5 5v2z"/></svg>') 0 36, auto !important;
+        }
+
+        /* Екран реєстрації та інформаційні модалки */
+        .overlay-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.92);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 4px solid var(--accent);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-card h2 {
+            font-family: 'Comfortaa', cursive;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .modal-card p {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .intro-box {
+            background: #f7fafc;
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2d3748;
+            margin-bottom: 22px;
+        }
+
+        .code-badge {
+            background: #edf2f7;
+            color: var(--primary);
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-size: 13px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+        }
+
+        .btn-magic {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 17px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            font-family: 'Comfortaa', cursive;
+            margin-top: 5px;
+        }
+
+        .btn-magic:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-sound-init {
+            background: linear-gradient(135deg, var(--primary), #6b21a8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            font-family: 'Comfortaa', cursive;
+            margin-bottom: 12px;
+            border: 2px solid #fff;
+        }
+
+        /* Ігровий контейнер */
+        #game-container {
+            width: 100%;
+            max-width: 1280px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-header {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid var(--accent);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stats-item {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats-item span {
+            color: var(--primary);
+            font-size: 17px;
+        }
+
+        /* Основний ігровий макет */
+        .game-main-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .quest-board-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .quest-board {
+            position: relative;
+            width: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 4px solid white;
+            background: #000;
+        }
+
+        .quest-board img {
+            width: 100%;
+            display: block;
+            height: auto;
+        }
+
+        /* Бічна панель (праворуч) */
+        .sidebar-right {
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Контейнер зібраних літер справа */
+        .letters-panel {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .letters-panel h3 {
+            font-family: 'Comfortaa', cursive;
+            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .letters-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            min-height: 220px;
+            width: 100%;
+            align-content: flex-start;
+        }
+
+        .collected-letter-chip {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent), #ffaa00);
+            color: #1e1b4b;
+            font-weight: 800;
+            font-size: 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #fff;
+        }
+
+        /* Кнопка закінчення квесту знизу праворуч */
+        .btn-finish-quest {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 14px 15px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            font-family: 'Comfortaa', cursive;
+            text-align: center;
+            border: 2px solid #fff;
+        }
+
+        .btn-finish-quest:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(72, 187, 120, 0.6);
+            background: linear-gradient(135deg, #38a169 100%, #2f855a 100%);
+        }
+
+        /* Кнопка увімкнення/вимкнення звуку */
+        .btn-sound-toggle {
+            background: linear-gradient(135deg, var(--primary), #6b21a8);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+            font-family: 'Comfortaa', cursive;
+            text-align: center;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-sound-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(138, 43, 226, 0.6);
+        }
+
+        /* Анімація похитування для активних піньят */
+        @keyframes swing {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(5deg); }
+            50% { transform: translate(-50%, -50%) rotate(0deg); }
+            75% { transform: translate(-50%, -50%) rotate(-5deg); }
+            100% { transform: translate(-50%, -50%) rotate(0deg); }
+        }
+
+        /* Невидимі гарячі точки (піньяти) */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            transform: translate(-50%, -50%);
+            animation: swing 2.5s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        .hotspot:hover {
+            background: rgba(255, 215, 0, 0.35);
+            box-shadow: 0 0 15px var(--accent);
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+        }
+
+        .hotspot.completed {
+            background: rgba(72, 187, 120, 0.35);
+            animation: none;
+            pointer-events: none;
+        }
+
+        .hotspot.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+        }
+
+        /* МАСИВНЕ КОНФЕТТІ НА ВЕСЬ ЕКРАН */
+        .confetti {
+            position: fixed;
+            width: 14px;
+            height: 14px;
+            background-color: var(--accent);
+            animation: confettiFly 1.5s cubic-bezier(0.1, 1, 0.3, 1) forwards;
+            z-index: 99999;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes confettiFly {
+            0% { transform: translate(0, 0) scale(1.2) rotate(0deg); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(1080deg); opacity: 0; }
+        }
+
+        /* Спливаюче сповіщення при промахах */
+        #hint-toast {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid var(--secondary);
+            color: #2d3748;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 2500;
+            pointer-events: none;
+            animation: popIn 0.3s ease;
+        }
+
+        /* Модальне вікно завдання */
+        #task-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .task-card {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            max-width: 520px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            text-align: center;
+            border: 4px solid var(--primary);
+            animation: popIn 0.4s ease;
+        }
+
+        .task-card h3 {
+            font-family: 'Comfortaa', cursive;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .task-text {
+            font-size: 17px;
+            margin: 15px 0;
+            padding: 14px;
+            background: #f7fafc;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent);
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 12px;
+            font-size: 17px;
+            text-align: center;
+            margin-bottom: 18px;
+            outline: none;
+        }
+
+        .task-input:focus {
+            border-color: var(--primary);
+        }
+
+        .msg-box {
+            margin: 8px 0;
+            font-weight: 700;
+            font-size: 14px;
+            min-height: 22px;
+        }
+
+        .msg-error { color: #e53e3e; }
+        .msg-success { color: #38a169; font-size: 16px; }
+
+        /* Екран результатів */
+        #result-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .result-card {
+            background: white;
+            padding: 35px;
+            border-radius: 25px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border: 4px solid var(--accent);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .stats-summary-box {
+            background: #edf2f7;
+            padding: 16px;
+            border-radius: 15px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.7;
+            border: 2px solid #cbd5e0;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .game-main-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar-right {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ФОНОВА МУЗИКА (файл fiesta.mp3 у тій самій папці) -->
+    <audio id="bg-music" loop>
+        <source src="fiesta.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 1. ЕКРАН РЕЄСТРАЦІЇ -->
+    <div id="reg-screen" class="overlay-screen">
+        <div class="modal-card">
+            <h2>✨ Чарівний Квест ✨</h2>
+            <p>Зареєструйся, щоб почати подорож і зберегти свої досягнення.</p>
+            <div class="input-group">
+                <label for="student-name">Ваше Прізвище та Ім'я:</label>
+                <input type="text" id="student-name" placeholder="наприклад, Шевченко Тарас">
+            </div>
+            <div class="input-group">
+                <label for="student-class">Клас:</label>
+                <input type="text" id="student-class" placeholder="наприклад, 7-А">
+            </div>
+            <button class="btn-sound-init" onclick="forcePlayMusic()">🎵 Увімкнути музику</button>
+            <button class="btn-magic" onclick="goToIntro()">Далі ➡️</button>
+        </div>
+    </div>
+
+    <!-- 2. ВСТУПНЕ СЛОВО (ІНСТРУКЦІЯ) -->
+    <div id="intro-screen" class="overlay-screen" style="display: none; z-index: 1500;">
+        <div class="modal-card">
+            <h2>🎉 Свято Піньяти! 🎉</h2>
+            <div class="intro-box">
+                Вітаю! Ти потрапив на свято Піньяти. Тобі треба знайти і розв'язати <b>19 завдань</b>.<br><br>
+                ⚠️ <b>Важливі правила:</b><br>
+                • Відповіді обов'язково вписуй з <b>англійської клавіатури</b>.<br>
+                • Степені записуй за допомогою знака <span class="code-badge">^</span> без пропусків і розділових знаків.<br>
+                • Наприклад, $a^2$ треба писати як <span class="code-badge">a^2</span>.<br><br>
+                Бажаю успіху! 🚀
+            </div>
+            <button class="btn-magic" onclick="startQuest()">Почати гру! ✨</button>
+        </div>
+    </div>
+
+    <!-- 3. ПОВІДОМЛЕННЯ ПРО ЗБІР УСІХ 19 ЛІТЕР -->
+    <div id="all-letters-screen" class="overlay-screen" style="display: none; z-index: 2500;">
+        <div class="modal-card">
+            <h2>🌟 Усі літери зібрано! 🌟</h2>
+            <div class="intro-box" style="text-align: center;">
+                Вітаю! Ти зібрав усі <b>19 літер</b>.<br><br>
+                Тепер склади з них кодову фразу, натисни на <b>усміхнену жовту зірочку-піньяту</b> та введи фразу у поле <b>без пропусків і розділових знаків</b>!
+            </div>
+            <button class="btn-magic" onclick="closeAllLettersModal()">Зрозуміло! ⭐</button>
+        </div>
+    </div>
+
+    <!-- ІГРОВИЙ ІНТЕРФЕЙС -->
+    <div id="game-container">
+        <div class="game-header">
+            <div class="stats-item">Учень: <span id="lbl-name">-</span></div>
+            <div class="stats-item">Знайдено: <span id="lbl-found">0</span> / 20</div>
+            <div class="stats-item">Бали: <span id="lbl-score">0</span> / 19</div>
+            <div class="stats-item">⏳ Час: <span id="lbl-timer">00:00</span></div>
+        </div>
+
+        <div class="game-main-layout">
+            <!-- Робоче вікно карти зліва -->
+            <div class="quest-board-wrapper">
+                <div id="hint-toast">Не там шукаєш!</div>
+                <div class="quest-board" id="questBoard" onclick="handleBoardClick(event)">
+                    <img src="image_953c3e.png.png" alt="Казковий квест - Одночлени" id="quest-bg" onerror="this.src='https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80'">
+                    
+                    <!-- 20 ТОЧОК ПЕРЕХОДУ -->
+                    <div class="hotspot" style="top: 50%; left: 81%; width: 5%; height: 7%;" onclick="openTask(0, event)"></div>
+                    <div class="hotspot" style="top: 68%; left: 81%; width: 5%; height: 10%;" onclick="openTask(1, event)"></div>
+                    <div class="hotspot" style="top: 87%; left: 14%; width: 4%; height: 7%;" onclick="openTask(2, event)"></div>
+                    <div class="hotspot" style="top: 75%; left: 54%; width: 5%; height: 6%;" onclick="openTask(3, event)"></div>
+                    <div class="hotspot" style="top: 83%; left: 93%; width: 4%; height: 6%;" onclick="openTask(4, event)"></div>
+                    <div class="hotspot" style="top: 50%; left: 46%; width: 4%; height: 5%;" onclick="openTask(5, event)"></div>
+                    <div class="hotspot" style="top: 6%; left: 39%; width: 5%; height: 6%;" onclick="openTask(6, event)"></div>
+                    <div class="hotspot" style="top: 93%; left: 63%; width: 5%; height: 5%;" onclick="openTask(7, event)"></div>
+                    <div class="hotspot" style="top: 61%; left: 7%; width: 5%; height: 7%;" onclick="openTask(8, event)"></div>
+                    <div class="hotspot" style="top: 38%; left: 61%; width: 5%; height: 6%;" onclick="openTask(9, event)"></div>
+                    <div class="hotspot" style="top: 59%; left: 17%; width: 4%; height: 5%;" onclick="openTask(10, event)"></div>
+                    <div class="hotspot" style="top: 72%; left: 24%; width: 4%; height: 5%;" onclick="openTask(11, event)"></div>
+                    <div class="hotspot" style="top: 89%; left: 48%; width: 6%; height: 6%;" onclick="openTask(12, event)"></div>
+                    <div class="hotspot" style="top: 25%; left: 14%; width: 8%; height: 12%;" onclick="openTask(13, event)"></div>
+                    <div class="hotspot" style="top: 35%; left: 33%; width: 7%; height: 10%;" onclick="openTask(14, event)"></div>
+                    <div class="hotspot" style="top: 17%; left: 50%; width: 7%; height: 10%;" onclick="openTask(15, event)"></div>
+                    <div class="hotspot" style="top: 62%; left: 37%; width: 8%; height: 12%;" onclick="openTask(16, event)"></div>
+                    <div class="hotspot" style="top: 24%; left: 71%; width: 7%; height: 10%;" onclick="openTask(17, event)"></div>
+                    <div class="hotspot" style="top: 28%; left: 88%; width: 7%; height: 11%;" onclick="openTask(18, event)"></div>
+                    <div class="hotspot" style="top: 60%; left: 66%; width: 8%; height: 11%;" onclick="openFinalTask(event)"></div>
+                </div>
+            </div>
+
+            <!-- Права панель: букви + кнопка завершення + кнопка звуку -->
+            <div class="sidebar-right">
+                <div class="letters-panel">
+                    <h3>✨ Зібрані літери ✨</h3>
+                    <div class="letters-grid" id="letters-container"></div>
+                </div>
+                <button class="btn-finish-quest" onclick="confirmFinishQuest()">🏁 Закінчити квест</button>
+                <button class="btn-sound-toggle" id="sound-toggle-btn" onclick="toggleSound()">🔊 Музика: Увімк</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНЕ ВІКНО ЗАВДАННЯ -->
+    <div id="task-modal" onclick="closeModalOutside(event)">
+        <div class="task-card" onclick="event.stopPropagation()">
+            <h3 id="task-title">Казкове завдання</h3>
+            <div class="task-text" id="task-content">Вираз тут</div>
+            <input type="text" class="task-input" id="task-answer" placeholder="Введіть відповідь..." autocomplete="off">
+            <div class="msg-box" id="task-msg"></div>
+            <button class="btn-magic" id="task-btn" onclick="checkAnswer()">Перевірити магію ✨</button>
+        </div>
+    </div>
+
+    <!-- ЕКРАН РЕЗУЛЬТАТІВ -->
+    <div id="result-screen">
+        <div class="result-card">
+            <h2 style="font-family: 'Comfortaa', cursive; color: var(--primary); margin-bottom: 12px;">🎉 Квест завершено! 🎉</h2>
+            <div id="result-details"></div>
+            <button class="btn-magic" onclick="location.reload()">Грати знову 🌟</button>
+        </div>
+    </div>
+
+    <script>
+        let student = { name: "", classGroup: "" };
+        let startTime = null;
+        let timerInterval = null;
+        let foundCount = 0;
+        let score = 0;
+        let collectedLetters = [];
+        let activeTaskIndex = null;
+        let missClickCount = 0;
+        let isMusicPlaying = false;
+        let userManuallyPaused = false; // Зберігає стан, чи учень сам вимкнув музику кнопкою
+
+        const missPhrases = [
+            "Не там шукаєш!",
+            "Поки ти стукаєш палкою, інші уже всі призи забрали!",
+            "Зовсім поруч!",
+            "Ще не всі куточки обстежені!"
+        ];
+
+        const tasks = [
+            { question: "1) Обчисліть добуток одночленів: $20a \\cdot (-0,05b)$", answer: "-ab", letter: "П" },
+            { question: "2) Спростіть вираз: $5b \\cdot \\left(-\\frac{1}{5}b^3\\right) \\cdot 2c$", answer: "-2b^4c", letter: "Р" },
+            { question: "3) Виконайте піднесення до степеня: $(-xy^3)^3$", answer: "-x^3y^9", letter: "А" },
+            { question: "4) Виконайте піднесення до степеня: $(-7a^2bc^3)^2$", answer: "49a^4b^2c^6", letter: "В" },
+            { question: "5) Зведи одночлен $5x^2 \\cdot (0,1x^2y) \\cdot (-2y)$ до стандартного вигдяду і вкажи його коефіцієнт:", answer: "-1", letter: "И" },
+            { question: "6) Утвори стандартний одночлен з виразу $\\left(-\\frac{1}{3}m^5\\right) \\cdot 9mn^9$ і вкажи його степінь:", answer: "15", letter: "Л" },
+            { question: "7) Виконайте множення: $\\left(-\\frac{1}{3}p^2\\right) \\cdot (-27k) \\cdot (5pk)$", answer: "45p^3k^2", letter: "А" },
+            { question: "8) Виконайте піднесення до степеня: $(-c^5m^9a^3)^5$", answer: "-c^25m^45a^15", letter: "В" },
+            { question: "9) Спростіть вираз: $15m^2 \\cdot (4m^3)^2$", answer: "240m^8", letter: "І" },
+            { question: "10) Спростіть вираз: $(-3a^3b^4)^4 \\cdot \\left(\\frac{1}{81}ab^3\\right)$", answer: "a^13b^19", letter: "Є" },
+            { question: "11) Який вираз треба піднести до куба, щоб утворився одночлен $0,027a^9b^{30}$ ?", answer: "0,3a^3b^10", letter: "Т" },
+            { question: "12) Знайдіть одночлен замість зірочки:<div style='margin-top: 10px; text-align: center; font-size: 19px;'>$3m^2n^3 \\cdot \\ast = 15m^3n^8$</div>", answer: "5mn^5", letter: "А" },
+            { question: "13) Спростіть: $(-x^6y)^3 \\cdot (11x^4y^5)$", answer: "-x^22y^8", letter: "Ц" },
+            { question: "14) Cпростіть: $(-2c^2d^5)^7 \\cdot \\left(-\\frac{1}{2}c^3d^5\\right)^4$", answer: "-8c^26d^55", letter: "Е" },
+            { question: "15) Якщо $2ab^2 = 7$, знайдіть значення виразу: $ab^2$", answer: "3,5", letter: "М" },
+            { question: "16) Відомо, що $2a^2b = 7$, і $a^3c^2 = 2$. Знайдіть значення виразу $6a^5bc^2$", answer: "42", letter: "А" },
+            { question: "17) Якщо $3ab^4 = 12$, то чому дорівнює значення одночлена $-6a^3b^{12}$?", answer: "-384", letter: "Г" },
+            { question: "18) Спростіть: $\\left(-\\frac{1}{2}ab^4\\right)^3 \\cdot (4a^6b)^2$", answer: "-2a^15b^14", letter: "І" },
+            { question: "19) Спростіть вираз: $(x^{1-2n}y^{4n+1})^3 \\cdot (x^{3n-1}y^{1-6n})^2$", answer: "xy^5", letter: "Я" }
+        ];
+
+        // Перевірка відповіді по клавіші Enter
+        document.getElementById("task-answer").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                checkAnswer();
+            }
+        });
+
+        // Примусове увімкнення звуку кнопкою на стартовому екрані
+        function forcePlayMusic() {
+            const music = document.getElementById("bg-music");
+            music.volume = 0.4;
+            music.play().then(() => {
+                isMusicPlaying = true;
+                userManuallyPaused = false;
+                const btn = document.getElementById("sound-toggle-btn");
+                if(btn) btn.innerHTML = "🔊 Музика: Увімк";
+                alert("Музику успішно активовано! 🎶");
+            }).catch(e => {
+                alert("Не вдалося відтворити файл fiesta.mp3. Перевірте, чи він лежить у тій самій папці.");
+            });
+        }
+
+        function goToIntro() {
+            const nameInput = document.getElementById("student-name").value.trim();
+            const classInput = document.getElementById("student-class").value.trim();
+
+            if (!nameInput || !classInput) {
+                alert("Будь ласка, введіть ваше Прізвище та Ім'я та Клас!");
+                return;
+            }
+
+            student.name = nameInput;
+            student.classGroup = classInput;
+
+            document.getElementById("reg-screen").style.display = "none";
+            const introScreen = document.getElementById("intro-screen");
+            introScreen.style.display = "flex";
+
+            if (window.katex) {
+                renderMathInElement(introScreen, {
+                    delimiters: [{left: "$", right: "$", display: false}],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function startQuest() {
+            const fullName = document.getElementById("student-name").value.trim();
+            const classInput = document.getElementById("student-class").value.trim();
+
+            if (!fullName || !classInput) {
+                alert("Будь ласка, введіть ваше Прізвище та Ім'я та Клас!");
+                return;
+            }
+
+            student.name = fullName;
+            student.classGroup = classInput;
+
+            document.getElementById("lbl-name").innerText = fullName;
+            document.getElementById("intro-screen").style.display = "none";
+            document.getElementById("game-container").style.display = "flex";
+
+            // Автоматичний запуск музики при старті гри
+            const music = document.getElementById("bg-music");
+            music.volume = 0.4;
+            music.play().then(() => {
+                isMusicPlaying = true;
+                userManuallyPaused = false;
+                document.getElementById("sound-toggle-btn").innerHTML = "🔊 Музика: Увімк";
+            }).catch(e => {
+                console.log("Автозапуск заблоковано браузером, очікується клік користувача.");
+            });
+
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Функція керування звуком (увімк/вимк) через кнопку праворуч
+        function toggleSound() {
+            const music = document.getElementById("bg-music");
+            const btn = document.getElementById("sound-toggle-btn");
+
+            if (isMusicPlaying) {
+                music.pause();
+                isMusicPlaying = false;
+                userManuallyPaused = true;
+                btn.innerHTML = "🔇 Музика: Вимк";
+                btn.style.background = "linear-gradient(135deg, #718096, #4a5568)";
+            } else {
+                music.play().then(() => {
+                    isMusicPlaying = true;
+                    userManuallyPaused = false;
+                    btn.innerHTML = "🔊 Музика: Увімк";
+                    btn.style.background = "linear-gradient(135deg, var(--primary), #6b21a8)";
+                }).catch(err => {
+                    alert("Браузер блокує звук. Натисніть спочатку кнопку увімкнення на старті.");
+                });
+            }
+        }
+
+        function closeAllLettersModal() {
+            document.getElementById("all-letters-screen").style.display = "none";
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            const minutes = String(Math.floor(diff / 60)).padStart(2, '0');
+            const seconds = String(diff % 60).padStart(2, '0');
+            document.getElementById("lbl-timer").innerText = `${minutes}:${seconds}`;
+        }
+
+        const completedTasks = new Array(20).fill(false);
+
+        // Величезний масив яскравого конфетті на весь екран
+        function createConfetti(clientX, clientY) {
+            for (let i = 0; i < 100; i++) {
+                const conf = document.createElement("div");
+                conf.className = "confetti";
+                conf.style.left = clientX + 'px';
+                conf.style.top = clientY + 'px';
+                
+                const colors = ['#ffd700', '#ff6b6b', '#8a2be2', '#48bb78', '#00bfff', '#ff8e53', '#ff69b4', '#00ffcc', '#ff4500'];
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 100 + Math.random() * 450;
+                conf.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+                conf.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 1500);
+            }
+        }
+
+        // Обробка кліку по пустій області (рахуємо промахи)
+        function handleBoardClick(event) {
+            const music = document.getElementById("bg-music");
+            if (!isMusicPlaying && !userManuallyPaused && music.paused) {
+                music.play().then(() => {
+                    isMusicPlaying = true;
+                    document.getElementById("sound-toggle-btn").innerHTML = "🔊 Музика: Увімк";
+                    document.getElementById("sound-toggle-btn").style.background = "linear-gradient(135deg, var(--primary), #6b21a8)";
+                }).catch(err => {});
+            }
+
+            if (event.target.classList.contains('hotspot')) return;
+
+            missClickCount++;
+            if (missClickCount >= 3) {
+                missClickCount = 0;
+                showMissToast(event);
+            }
+        }
+
+        function showMissToast(event) {
+            const toast = document.getElementById("hint-toast");
+            const randomPhrase = missPhrases[Math.floor(Math.random() * missPhrases.length)];
+            toast.innerText = randomPhrase;
+
+            const boardRect = document.getElementById("questBoard").getBoundingClientRect();
+            const x = event.clientX - boardRect.left;
+            const y = event.clientY - boardRect.top;
+
+            toast.style.left = Math.min(x, boardRect.width - 220) + 'px';
+            toast.style.top = Math.max(y - 50, 10) + 'px';
+            toast.style.display = "block";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 2200);
+        }
+
+        function openTask(index, event) {
+            if (completedTasks[index]) return;
+            event.stopPropagation();
+
+            createConfetti(event.clientX, event.clientY);
+
+            // ПАУЗА МУЗИКИ ПРИ ВІДКРИТТІ ЗАВДАННЯ
+            const music = document.getElementById("bg-music");
+            if (isMusicPlaying) {
+                music.pause();
+            }
+
+            activeTaskIndex = index;
+            const task = tasks[index];
+
+            setTimeout(() => {
+                document.getElementById("task-title").innerText = `Завдання №${index + 1}`;
+                const contentDiv = document.getElementById("task-content");
+                contentDiv.innerHTML = task.question;
+                
+                document.getElementById("task-answer").value = "";
+                document.getElementById("task-msg").innerText = "";
+                document.getElementById("task-modal").style.display = "flex";
+                document.getElementById("task-answer").focus();
+
+                if (window.katex) {
+                    renderMathInElement(contentDiv, {
+                        delimiters: [
+                            {left: "$$", right: "$$", display: true},
+                            {left: "$", right: "$", display: false}
+                        ],
+                        throwOnError: false
+                    });
+                }
+            }, 350);
+        }
+
+        function openFinalTask(event) {
+            if (completedTasks[19]) return;
+            event.stopPropagation();
+
+            if (score < 19) {
+                alert(`Ти розв'язав(ла) ще не всі завдання (${score}/19)!`);
+                return;
+            }
+
+            createConfetti(event.clientX, event.clientY);
+
+            // ПАУЗА МУЗИКИ ПРИ ВІДКРИТТІ ФІНАЛЬНОГО ЗАВДАННЯ
+            const music = document.getElementById("bg-music");
+            if (isMusicPlaying) {
+                music.pause();
+            }
+
+            setTimeout(() => {
+                activeTaskIndex = 19;
+                document.getElementById("task-title").innerText = "🏆 Фінальний скарб казкової зірки!";
+                document.getElementById("task-content").innerHTML = "Склади із зібраних 19 букв кодову фразу та введи у поле <b>без пропусків і розділових знаків</b>:";
+                document.getElementById("task-answer").value = "";
+                document.getElementById("task-msg").innerText = "";
+                document.getElementById("task-modal").style.display = "flex";
+                document.getElementById("task-answer").focus();
+            }, 350);
+        }
+
+        function closeModalOutside(event) {
+            if (event.target.id === "task-modal") {
+                document.getElementById("task-modal").style.display = "none";
+                // ВІДНОВЛЕННЯ МУЗИКИ ПРИ ЗАКРИТТІ ОКРЕМОГО ВІКНА КЛИКОМ ПО ЗОНІ
+                resumeMusicIfNeeded();
+            }
+        }
+
+        // Допоміжна функція для відновлення музики при закритті вікна завдання
+        function resumeMusicIfNeeded() {
+            const music = document.getElementById("bg-music");
+            if (isMusicPlaying && !userManuallyPaused) {
+                music.play().catch(e => console.log("Не вдалося відновити музику:", e));
+            }
+        }
+
+        function checkAnswer() {
+            const userAns = document.getElementById("task-answer").value.trim().replace(/\s+/g, '');
+            const msgBox = document.getElementById("task-msg");
+
+            if (activeTaskIndex === 19) {
+                const correctCode = "ПРАВИЛАВІЄТАЦЕМАГІЯ";
+                if (userAns.toUpperCase() === correctCode) {
+                    completedTasks[19] = true;
+                    foundCount++;
+                    document.getElementById("lbl-found").innerText = foundCount;
+                    document.getElementById("task-modal").style.display = "none";
+                    finishGame();
+                } else {
+                    msgBox.className = "msg-box msg-error";
+                    msgBox.innerText = "Неправильна фінальна фраза-код! Спробуй ще раз без пропусків і розділових знаків.";
+                }
+                return;
+            }
+
+            const correctAns = tasks[activeTaskIndex].answer.replace(/\s+/g, '');
+            
+            if (userAns.toLowerCase() === correctAns.toLowerCase()) {
+                const letter = tasks[activeTaskIndex].letter;
+                msgBox.className = "msg-box msg-success";
+                msgBox.innerText = `Правильна відповідь! Ви отримуєте букву ${letter}. ✨`;
+                
+                if (!completedTasks[activeTaskIndex]) {
+                    completedTasks[activeTaskIndex] = true;
+                    foundCount++;
+                    score++;
+                    collectedLetters.push(letter);
+                    document.getElementById("lbl-found").innerText = foundCount;
+                    document.getElementById("lbl-score").innerText = score;
+
+                    const lettersContainer = document.getElementById("letters-container");
+                    const chip = document.createElement("div");
+                    chip.className = "collected-letter-chip";
+                    chip.innerText = letter;
+                    lettersContainer.appendChild(chip);
+
+                    const hotspots = document.querySelectorAll('.hotspot');
+                    if (hotspots[activeTaskIndex]) {
+                        hotspots[activeTaskIndex].classList.add('completed');
+                    }
+                }
+
+                const isAll19Done = (score === 19);
+
+                setTimeout(() => {
+                    document.getElementById("task-modal").style.display = "none";
+                    // ВІДНОВЛЕННЯ МУЗИКИ ПІСЛЯ ПРАВИЛЬНОЇ ВІДПОВІДІ (ПОВЕРНЕННЯ ДО КАРТИ)
+                    resumeMusicIfNeeded();
+
+                    if (isAll19Done) {
+                        document.getElementById("all-letters-screen").style.display = "flex";
+                        // На екрані збору всіх літер музику теж можна призупинити, щоб не заважати читати
+                        const music = document.getElementById("bg-music");
+                        music.pause();
+                    }
+                }, 1400);
+
+            } else {
+                msgBox.className = "msg-box msg-error";
+                msgBox.innerText = "Неправильна відповідь. Спробуй ще або перейди на інший об'єкт.";
+            }
+        }
+
+        function calculate12Scale(score) {
+            if (score === 19) return 12;
+            return Math.max(1, Math.round((score / 19) * 11));
+        }
+
+        function confirmFinishQuest() {
+            if (confirm("Ви впевнені, що хочете завершити квест зараз? Ваш поточний результат буде надіслано вчителю.")) {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            clearInterval(timerInterval);
+            document.getElementById("game-container").style.display = "none";
+
+            // Зупиняємо музику при завершенні
+            const music = document.getElementById("bg-music");
+            music.pause();
+
+            const timeStr = document.getElementById("lbl-timer").innerText;
+            const grade12 = calculate12Scale(score);
+
+            let taskResultsArr = [];
+            for (let i = 0; i < 20; i++) {
+                taskResultsArr.push(completedTasks[i] ? 1 : "");
+            }
+
+            const detailsHTML = `
+                <p style="font-size: 16px; color: #2d3748; margin-bottom: 12px;">
+                    Гра завершена! Дякуємо за участь у казковому квесті! ✨
+                </p>
+
+                <div class="stats-summary-box">
+                    <b>👤 Учень:</b> ${student.name} (${student.classGroup})<br>
+                    <b>🏆 Набрано балів:</b> ${score} / 19<br>
+                    <b>🎓 Оцінка за 12-бальною шкалою:</b> <span style="color: var(--primary); font-size: 20px; font-weight: 800;">${grade12} балів</span><br>
+                    <b>⏳ Час проходження:</b> ${timeStr}
+                </div>
+            `;
+
+            document.getElementById("result-details").innerHTML = detailsHTML;
+            document.getElementById("result-screen").style.display = "flex";
+
+            sendDataToGoogleSheet({
+                name: student.name,
+                classGroup: student.classGroup,
+                scoreStr: score + "/19",
+                grade12: grade12,
+                time: timeStr,
+                taskResults: taskResultsArr
+            });
+        }
+
+        function sendDataTest(data) {
+            // Для звітів
+        }
+
+        function sendDataToGoogleSheet(data) {
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzn17o6HIluQ-uOUvr9a7um2ApoI6mdAWQDvDFLRygLD1MoF6W9-bp6l1cK4rrbAS9T/exec"; 
+            if (scriptURL.includes("ТУТ_ВСТАВТЕ")) return;
+
+            console.log("Дані для надсилання:", data);
+
+            fetch(scriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            }).catch(err => console.log("Помилка надсилання у таблицю:", err));
+        }
+    </script>
+</body>
+</html>
